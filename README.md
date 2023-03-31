@@ -104,7 +104,7 @@ export BUILD_VERSION=0.9.0
 ```
 Then you have to set your `PYTHONPATH`:
 ```bash
-export PYTHONPATH=
+export PYTHONPATH="/home/nvidia/.local/lib/python3.6/site-packages/"
 ```
 ```bash
 python3 setup.py install --user
