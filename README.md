@@ -5,21 +5,21 @@
 The installation requires an Nvidia Jetson Xavier device using Python 3.7 (it works also in a 3.69 Python env, but YOLOv5 requires a Python 3.7 environment).
 
 1. Update the system
-  ```bash
-    sudo apt-get update
-  ``` 
+```bash
+  sudo apt-get update
+``` 
 
 2. Install basic dependencies needed for YOLOv5
-  ```bash
-  sudo apt-get install python3-pip python3-dev
-  sudo apt-get install python3-matplotlib
-  sudo apt-get install libopenblas-base libopenmpi-dev
-  pip3 install Cython
-  pip3 install numpy==1.19.4
-  pip3 install scipy scikit-build tqdm
-  pip3 install pillow seaborn pyyaml ffmpeg-python
-  sudo apt-get install git
-  ```
+```bash
+sudo apt-get install python3-pip python3-dev
+sudo apt-get install python3-matplotlib
+sudo apt-get install libopenblas-base libopenmpi-dev
+pip3 install Cython
+pip3 install numpy==1.19.4
+pip3 install scipy scikit-build tqdm
+pip3 install pillow seaborn pyyaml ffmpeg-python
+sudo apt-get install git
+```
   Pay attention to numpy version, it has to be 1.19.4, the 1.19.5 is buggy (ingore any dependencies’ ERRORS). Some commands may take a while, don’t worry about it.
 
 3. Open your /.bashrc file:
@@ -79,39 +79,130 @@ import get_python_lib; print(get_python_lib())") \
 ```  
 and finally:
 ```bash
-  sudo make -j$(nproc)
+sudo make -j$(nproc)
 ```
   the installation of OpenCV may take from 5 mins to 2 hours, don’t worry (the process seems to be blocked in some phases, but it’s not, it’s just very very slow).
 
 6. Now we can install OpenCV:
 ```bash
-  sudo make install
-  sudo ldconfig
+sudo make install
+sudo ldconfig
 ```
 
 7. Let’s install PyTorch: At [this link](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048) you can find all the pip wheel files versions provided by NVIDIA, I’ll use ’PyTorch v1.8.0 ’ but you have to check your Jetpack version. The sintax is basically this:
 ```bash
-  wget <link> -O <file_name>
-  pip3 install <file_name>
+wget <link> -O <file_name>
+pip3 install <file_name>
 ```
 
 right click over the name of the file and copy link to get the <link>; since I want to install PyTorch v1.8.0, my command will be:
 ```bash
-  wget https://nvidia.box.com/shared/static/p57jwntv436lfrd78inwl7iml6p13fzh.whl -O torch-1.8.0-cp36-cp36m-linux_aarch64.whl
-  pip3 install torch-1.8.0-cp36-cp36m-linux_aarch64.whl
+wget https://nvidia.box.com/shared/static/p57jwntv436lfrd78inwl7iml6p13fzh.whl -O torch-1.8.0-cp36-cp36m-linux_aarch64.whl
+pip3 install torch-1.8.0-cp36-cp36m-linux_aarch64.whl
 ```
 
-8. nstall torchvision: let’s check that the torchvision version we want to install is compatible with the torch’s version (check at this link); in my case, torchvision v0.9.0 is compatible:
+8. Install torchvision: let’s check that the torchvision version we want to install is compatible with the torch’s version (check at this link); in my case, torchvision v0.9.0 is compatible:
 ```bash
-  wget https://nvidia.box.com/shared/static/p57jwntv436lfrd78inwl7iml6p13fzh.whl -O torch-1.8.0-cp36-cp36m-linux_aarch64.whl
-  pip3 install torch-1.8.0-cp36-cp36m-linux_aarch64.whl
-```
-
 git clone --branch v0.9.0 https://github.com/pytorch/vision torchvision
 cd torchvision
 export BUILD_VERSION=0.9.0 #instead of 0.9.0, put the version you need
 python3 setup.py install --user
 cd ..
+```
+
+##YOLOv5 installation
+
+Finally we can install YOLOv5 from github:
+```bash
+sudo apt-get update
+git clone https://github.com/ultralytics/yolov5.git
+cd yolov5
+```
+
+
+then you need to change some stuff in the requirements.txt:
+```bash
+gitpython>=3.1.3 #remove the 0
+...
+setuptools>=59.6.0
+```
+
+and finally install it:
+```bash
+pip3 install -r requirements.txt
+```
+This will be enough to let your YOLOv5 model works check it:
+```bash
+cd yolov5/
+python detect.py --weights yolov5s.pt --source  0 #webcam
+                                                img.jpg
+                                                vid.mp4
+                                                screen
+                                                path/
+                                                list.txt
+                                                list.streams
+                                                'path/*.jpg'
+                                                'https://youtu.be/Zgi9g1ksQHc'
+                                                'rtsp://example.com/media.mp4'
+```
+
+and have a look at the results saved in runs/detect.
+
+## VideoAnony Setup
+
+We need a Python ≥ 3.6 environment.
+
+1. First of all, if we haven’t done it already, we need to [generate a new SSH key and adding it to the ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+2. Once we’ve done it, we have to [add it to our GitHub account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account?tool=webui).
+3. Now we can clone the git repository (just if we’re allowed to by repo’s admin):
+```bash
+git clone git@github.com:luca-zanella-dvl/marvel-videoanony.git
+cd marvel-video-anonymization
+```
+It’s recommended to use a virtual environment:
+```bash
+conda create --name marvel-video-anonymization python=3.9
+conda activate marvel-video-anonymization
+```
+4. Finally we can install all the requirements:
+```bash
+pip3 install -r requirements.txt
+```
+5. We need to create a new folder for the weights of our model:
+```bash
+mkdir weights
+```
+then download these weights and save them under the weights folder.
+6. If we want to run the anonymization script locally, we need to open the src/anonymize.py with an editor and comment the following lines:
+```bash
+vid_writer[i] = cv2.VideoWriter(
+gstreamer_pipeline_out(dataset.streams[i]),
+cv2.CAP_GSTREAMER,
+0,
+fps,
+(w, h),
+True,
+)
+```
+and uncomment the following:
+```bash
+vid_writer[i] = cv2.VideoWriter(
+save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h)
+)
+```
+7. Finally we can run the anonymization script:
+```bash
+python3 src/anonymize.py --source data/videos/MOT17-03_first5s.mp4 --vstream-uri ""
+```
+If we want to choose the specifical weights, we can add these following arguments:
+```bash
+--head-model weights/<weights1> --lpd-model weights/<weights2>
+```
+where <weights1> are the weights used for the face recognition and <weights2> are the ones used for the license plate recognition.
+
+
+
+
 
 
 
