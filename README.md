@@ -118,7 +118,7 @@ python3 setup.py install --user
 cd ..
 ```
 
-##YOLOv5 installation
+## YOLOv5 installation
 
 Finally we can install YOLOv5 from github:
 ```bash
