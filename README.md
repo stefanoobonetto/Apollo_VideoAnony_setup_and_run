@@ -201,8 +201,13 @@ If we want to choose the specifical weights, we can add these following argument
 where <weights1> are the weights used for the face recognition and <weights2> are the ones used for the license plate recognition.
 
 
+## Usage with TensorRT
+To improve the speed of the model's inference, we can use TensorRT, simply you can download [this anonymize.py file]() and [this detector.py](), which are the version adapted to the usage off TensorRT, and then replace the original anonymize.py and detector.py file.
 
+You have also to change the weights of your model, here we have two choices:
 
+- weights[1280x960], the original dimension of the model. You can download these weights [from there](https://drive.google.com/drive/folders/15FXjoMjNsjRVxEeLoktylUMUJk0riYay?usp=sharing)
+- weights[960x720], there is a resize phase, the model is faster. You can download these weights [from there](https://drive.google.com/drive/folders/1JMMoLBsqJWAtxN3WutxzGAssgo0msArb?usp=sharing)
 
 
 
