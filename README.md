@@ -172,7 +172,7 @@ pip3 install -r requirements.txt
 ```bash
 mkdir weights
 ```
-then download these weights and save them under the weights folder.
+then download [these weights](https://drive.google.com/drive/folders/1aexr_pfUcWkOq09g1LUqAw1DwIjPN05M?usp=sharing) and save them under the weights folder.
 6. If we want to run the anonymization script locally, we need to open the src/anonymize.py with an editor and comment the following lines:
 ```bash
 vid_writer[i] = cv2.VideoWriter(
@@ -199,6 +199,7 @@ If we want to choose the specifical weights, we can add these following argument
 --head-model weights/<weights1> --lpd-model weights/<weights2>
 ```
 where <weights1> are the weights used for the face recognition and <weights2> are the ones used for the license plate recognition.
+
 
 
 
