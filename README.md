@@ -1,117 +1,119 @@
-# YoloV5 installation on Jetson Xavier platforms 
-I suggest to create your own virtual environment to deploy YoloV5, to do it you should follow steps below: <br>
+# Apollo Setup (NVIDIA Jetson Xavier NX)
 
-1. Install virtualenv: 
-```bash
-  pip3 install virtualenv
-``` 
-2. Create your virtual environment (named <my_env_name>):
- ```bash
- virtualenv <my_env_name>
- ```
-3. To activate you environment, just type:
+## pyTorch and OpenCV installation
+
+The installation requires an Nvidia Jetson Xavier device using Python 3.7 (it works also in a 3.69 Python env, but YOLOv5 requires a Python 3.7 environment).
+
+1. Update the system
   ```bash
- source <my_env_name>/bin/activate
- ```
-4. If you want to quit the environment, simply type `deactivate`
+    sudo apt-get update
+  ``` 
 
-<hr>
+2. Install basic dependencies needed for YOLOv5
+  ```bash
+  sudo apt-get install python3-pip python3-dev
+  sudo apt-get install python3-matplotlib
+  sudo apt-get install libopenblas-base libopenmpi-dev
+  pip3 install Cython
+  pip3 install numpy==1.19.4
+  pip3 install scipy scikit-build tqdm
+  pip3 install pillow seaborn pyyaml ffmpeg-python
+  sudo apt-get install git
+  ```
+  Pay attention to numpy version, it has to be 1.19.4, the 1.19.5 is buggy (ingore any dependencies’ ERRORS). Some commands may take a while, don’t worry about it.
 
-If you haven't done it yet, you should install `git` and `pip`:
+3. Open your /.bashrc file:
 ```bash
-sudo apt-get install git
+sudo gedit ~/.bashrc
 ```
+  and append to the bottom of the file the following lines:
 ```bash
-sudo apt install python3-pip
+export PKG_CONFIG_PATH='/usr/lib/aarch64-linux-gnu/pkgconfig'
+export OPENBLAS_CORETYPE=ARMV8
+export OMP_NUM_THREADS=1
 ```
-then clone the YoloV5 repository:
+
+and if there isn’t yet, add this to the PATH env. variable in the .bashrc file:
 ```bash
-git clone https://github.com/ultralytics/yolov5.git
- ```
-Install the following feature:
-```bash
-pip3 install -U PyYAML==5.3.1
+PATH=directory:another_directory:/usr/local/cuda-10.2/bin
 ```
+
+4. Install OpenCV dependencies:
 ```bash
-pip3 install tqdm
+sudo apt-get install build-essential cmake unzip pkg-config
+sudo apt-get install libjpeg-dev libpng-dev libtiff-dev
+sudo apt-get install libavcodec-dev libavformat-dev
+sudo apt-get install libswscale-dev libv4l-dev
+sudo apt-get install libxvidcore-dev libx264-dev
+sudo apt-get install libgtk-3-dev
+sudo apt-get install libatlas-base-dev gfortran
 ```
+
+5. To install OpenCV, let’s clone the repo:
 ```bash
-pip3 install cython 
+git clone https://github.com/opencv/opencv.git
+cd /opencv
+git checkout 4.5.4
 ```
+  then create a build folder and build OpenCV:
 ```bash
-pip3 install -U numpy==1.19.5
+mkdir /opencv/build
+cd /opencv/build
+
+sudo ln -s /opt/conda/lib/python3.8/site-packages/numpy/core/include/numpy/usr/include/numpy
+
+sudo cmake -D CMAKE_BUILD_TYPE=RELEASE \
+-D INSTALL_PYTHON_EXAMPLES=ON \
+-D INSTALL_C_EXAMPLES=OFF \
+-D PYTHON_EXECUTABLE=$(which python) \
+-D BUILD_opencv_python2=OFF \
+-D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") \
+-D PYTHON3_EXECUTABLE=$(which python3) \
+-D PYTHON3_INCLUDE_DIR=$(python -c "from distutils.sysconfig \
+import get_python_inc; print(get_python_inc())") \
+-D PYTHON3_PACKAGES_PATH=$(python -c "from distutils.sysconfig \
+import get_python_lib; print(get_python_lib())") \
+-D WITH_FFMPEG=ON \
+-D WITH_GSTREAMER=ON \
+-D BUILD_EXAMPLES=ON ..
+```  
+and finally:
+```bash
+  sudo make -j$(nproc)
 ```
+  the installation of OpenCV may take from 5 mins to 2 hours, don’t worry (the process seems to be blocked in some phases, but it’s not, it’s just very very slow).
+
+6. Now we can install OpenCV:
 ```bash
-sudo apt install build-essential libssl-dev libffi-dev python3-dev
+  sudo make install
+  sudo ldconfig
 ```
+
+7. Let’s install PyTorch: At [this link](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048) you can find all the pip wheel files versions provided by NVIDIA, I’ll use ’PyTorch v1.8.0 ’ but you have to check your Jetpack version. The sintax is basically this:
 ```bash
-pip3 install cycler==0.10 
+  wget <link> -O <file_name>
+  pip3 install <file_name>
 ```
+
+right click over the name of the file and copy link to get the <link>; since I want to install PyTorch v1.8.0, my command will be:
 ```bash
-pip3 install kiwisolver==1.3.1 
+  wget https://nvidia.box.com/shared/static/p57jwntv436lfrd78inwl7iml6p13fzh.whl -O torch-1.8.0-cp36-cp36m-linux_aarch64.whl
+  pip3 install torch-1.8.0-cp36-cp36m-linux_aarch64.whl
 ```
+
+8. nstall torchvision: let’s check that the torchvision version we want to install is compatible with the torch’s version (check at this link); in my case, torchvision v0.9.0 is compatible:
 ```bash
-pip3 install pyparsing==2.4.7 
+  wget https://nvidia.box.com/shared/static/p57jwntv436lfrd78inwl7iml6p13fzh.whl -O torch-1.8.0-cp36-cp36m-linux_aarch64.whl
+  pip3 install torch-1.8.0-cp36-cp36m-linux_aarch64.whl
 ```
-```bash
-pip3 install python-dateutil==2.8.2 
-```
-```bash
-sudo apt install libfreetype6-dev 
-```
-```bash
-pip3 install --no-deps matplotlib==3.2.2 
-```
-```bash
-sudo apt install gfortran 
-```
-```bash
-sudo apt install libopenblas-dev 
-```
-```bash
-sudo apt install liblapack-dev 
-```
-```bash
-pip3 install scipy==1.4.1 
-```
-```bash
-sudo apt install libjpeg-dev 
-```
-```bash
-pip3 install pillow==8.3.2 
-```
-```bash
-wget https://nvidia.box.com/shared/static/p57jwntv436lfrd78inwl7iml6p13fzh.whl -O torch-1.9.0-cp36-cp36m-linux_aarch64.whl
-```
-```bash
-pip3 install typing-extensions==3.10.0.2
-```
-```bash
-pip3 install torch-1.9.0-cp36-cp36m-linux_aarch64.whl
-```
-Install torchivision (I've choosen the 0.9.0 version):
-```bash
-sudo apt-get install libjpeg-dev zlib1g-dev libpython3-dev libavcodec-dev libavformat-dev libswscale-dev
-```
-```bash
-git clone --branch v0.9.0 https://github.com/pytorch/vision torchvision   # see below for version of torchvision to download
-```
-```bash
+
+git clone --branch v0.9.0 https://github.com/pytorch/vision torchvision
 cd torchvision
-```
-```bash
-export BUILD_VERSION=0.9.0    
-```
-Then you have to set your `PYTHONPATH`:
-```bash
-export PYTHONPATH="/home/nvidia/.local/lib/python3.6/site-packages/"
-```
-```bash
+export BUILD_VERSION=0.9.0 #instead of 0.9.0, put the version you need
 python3 setup.py install --user
-```
-```bash
-pip3 install --no-deps seaborn==0.11.0
-```
-Now you'll be able to execute your detection model.
+cd ..
+
+
+
 
 
