@@ -1,5 +1,13 @@
 # Apollo Setup (NVIDIA Jetson Xavier NX)
 
+
+## Table of Contents
+- [pyTorch and OpenCV installation](#pytorch-and-opencv-installation)
+- [YOLOv5 installation](#yolov5-installation)
+- [VideoAnony Setup](#videoanony-setup)
+- [Usage with TensorRT](#usage-with-tensorrt)
+
+
 ## pyTorch and OpenCV installation
 
 The installation requires an Nvidia Jetson Xavier device using Python 3.7 (it works also in a 3.69 Python env, but YOLOv5 requires a Python 3.7 environment).
