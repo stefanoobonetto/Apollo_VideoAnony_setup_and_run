@@ -202,12 +202,24 @@ where <weights1> are the weights used for the face recognition and <weights2> ar
 
 
 ## Usage with TensorRT
-To improve the speed of the model's inference, we can use TensorRT, simply you can download [this anonymize.py file]() and [this detector.py](), which are the version adapted to the usage off TensorRT, and then replace the original anonymize.py and detector.py file.
+To improve the speed of the model's inference, we can use TensorRT.
+
+You need to install it and install onnxruntime.
+
+Then you can simply download [this anonymize.py file](https://github.com/stefanoobonetto/JetsonXavier_YoloV5_installation/blob/main/anonymize.py) and [this detector.py](https://github.com/stefanoobonetto/JetsonXavier_YoloV5_installation/blob/main/detector.py), which are the version adapted to the usage off TensorRT, and then replace the original anonymize.py and detector.py file 
+
+<i>N.B. this is bad code, I haven't much time to make it better, but it works :).</i>
 
 You have also to change the weights of your model, here we have two choices:
 
 - weights[1280x960], the original dimension of the model. You can download these weights [from there](https://drive.google.com/drive/folders/15FXjoMjNsjRVxEeLoktylUMUJk0riYay?usp=sharing)
-- weights[960x720], there is a resize phase, the model is faster. You can download these weights [from there](https://drive.google.com/drive/folders/1JMMoLBsqJWAtxN3WutxzGAssgo0msArb?usp=sharing)
+- weights[960x720], there is a resize phase, the model is faster. You can download these weights [from there](https://drive.google.com/drive/folders/1JMMoLBsqJWAtxN3WutxzGAssgo0msArb?usp=sharing), if you choose this version, you also have to change the 29th line of the detector.py:
+```python
+im = cv2.resize(im0s, (1280, 960), interpolation=cv2.INTER_NEAREST)
+```
+
+In both cases, replace the old weights folder with the new one.
+
 
 
 
